@@ -15,12 +15,16 @@ class QValuesMap
 {
     private:
     //data structure for q vals
-    int QValueArray [336][5];// ROWS(states) X COLS (actions) actions = 0_no action;1_up;2_dn;3_R;4_L
+    double ** QValueArray;// ROWS(states) X COLS (actions) actions = 0_no action;1_up;2_dn;3_R;4_L
     public:
-    QValuesMap ();
+    int stateNum;
+    int actionNum;
+    QValuesMap (int stateNum, int actionNum);
+    ~QValuesMap();
     double getQValue(int state, int action);
     int getBestAction(int state);
     void storeQValue(int state, int action, double qVal);
-    
+
 };
 #endif /* QValuesMap_hpp */
+

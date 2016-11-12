@@ -15,15 +15,15 @@
 class QLearningAgent
 {
     private:
-    QValuesMap QMap;
+    QValuesMap* QMap;
     //current state variable?
     //next state variable?
     public:
     double alpha, gamma, rho, nu;
-    QLearningAgent(double a, double g, double r, double n):alpha(a), gamma(g), rho(r), nu(n){};
+    QLearningAgent(double a, double g, double r, double n, int states, int actions);
+    ~QLearningAgent();
     int getAction(int state);//include randomization in here for exploration
-    void calculateQVal(int state, double reward);
+    void calculateQVal(int curState, int newState, int curAction, int bestAction, double reward);
 };
-
-
 #endif /* QLearningAgent_hpp */
+

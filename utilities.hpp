@@ -13,6 +13,7 @@ public:
   static const int HEIGHT = 210;
   
   Background();
+  int pixelAt(int x, int y);
   void print();
 
 private:

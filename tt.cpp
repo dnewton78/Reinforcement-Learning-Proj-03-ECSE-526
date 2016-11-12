@@ -54,21 +54,21 @@ int main(int argc, char** argv) {
     ActionVect legal_actions = ale.getLegalActionSet();
 
     Background bg;
-    bg.print();
+    // bg.print();
 
-    // // Play 10 episodes
-    // // for (int episode=0; episode<10; episode++) {
-    // for (int episode=0; episode<1; episode++) {
-    //     float totalReward = 0;
-    //     while (!ale.game_over()) {
-    //         Action a = legal_actions[rand() % legal_actions.size()];
-    //         // Apply the action and get the resulting reward
-    //         float reward = ale.act(PLAYER_A_NOOP);
-    //         totalReward += reward;
-    //     }
-    //     cout << "Episode " << episode << " ended with score: " << totalReward << endl;
-    //     ale.reset_game();
-    // }
+    // Play 10 episodes
+    // for (int episode=0; episode<10; episode++) {
+    for (int episode=0; episode<1; episode++) {
+        float totalReward = 0;
+        while (!ale.game_over()) {
+            Action a = legal_actions[rand() % legal_actions.size()];
+            // Apply the action and get the resulting reward
+            float reward = ale.act(PLAYER_A_NOOP);
+            totalReward += reward;
+        }
+        cout << "Episode " << episode << " ended with score: " << totalReward << endl;
+        ale.reset_game();
+    }
 
     return 0;
 }

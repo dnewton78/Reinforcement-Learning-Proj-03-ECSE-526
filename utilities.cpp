@@ -34,7 +34,7 @@ Background::Background()
     j = 0;
     while( std::getline(ss, val, delimiter))
     {
-      cout << "[" << i  << "]" << "[" << j  << "]:" << val << " ";
+      // cout << "[" << i  << "]" << "[" << j  << "]:" << val << " ";
       background[i][j] = stoi(val);
       j++;
     }
@@ -46,7 +46,7 @@ Background::Background()
   backgroundFile.close();
 }
 
-int pixelAt(int x, int y)
+int Background::pixelAt(int x, int y)
 {
   return background[x][y];
 }

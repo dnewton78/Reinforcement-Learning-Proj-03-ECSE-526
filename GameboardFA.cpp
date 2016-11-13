@@ -11,32 +11,29 @@
 #include <vector>
 using namespace std;
 
-class GameBoard
+class GameBoardFA
 {
-    public:
-    int position[2];//state
-    vector<double> features;
+public:
+    vector<int> position;//state
     double GridWorld [3][4];
     bool invalidAFlag;
     int invalidActionCount;
-    GameBoard()
+    GameBoardFA()
     {
         GridWorld[2][0] = 0.812; GridWorld[2][1] = 0.868;GridWorld[2][2] = 0.918;GridWorld[2][3] = 1;
         GridWorld[1][0] = 0.762; GridWorld[1][1] = -0.1;GridWorld[1][2] = 0.660;GridWorld[1][3] = -1;
         GridWorld[0][0] = 0.705; GridWorld[0][1] = 0.655;GridWorld[0][2] = 0.611;GridWorld[0][3] = 0.388;
         
+        this->position.resize(2);
         position[0] = 0;
         position[1] = 0;
-        this->features.resize(2);
-        features[0] = 0;
-        features[1] = 0;
         invalidAFlag = false;
         invalidActionCount = 0;
     }
     void makeMove(int action)
     {
         invalidAFlag  = false;
-
+        
         //apply action
         switch(action)
         {
@@ -44,7 +41,7 @@ class GameBoard
                 if(position[0]+1<3 && position[0]+1>=0)
                 {
                     position[0] =position[0]+1;
-                cout<<"Up action taken"<<" new position ["<<position[0]<<"]"<<"["<<position[1]<<"]"<<"\n";
+                    cout<<"Up action taken"<<" new position ["<<position[0]<<"]"<<"["<<position[1]<<"]"<<"\n";
                 }else{
                     cout<<"Invalid action specified.  No action taken."<<"\n";
                     invalidAFlag  = true;invalidActionCount++;
@@ -54,7 +51,7 @@ class GameBoard
                 if(position[0]-1<3 && position[0]-1>=0)
                 {
                     position[0] =position[0]-1;
-                cout<<"Down action taken"<<" new position ["<<position[0]<<"]"<<"["<<position[1]<<"]"<<"\n";
+                    cout<<"Down action taken"<<" new position ["<<position[0]<<"]"<<"["<<position[1]<<"]"<<"\n";
                 }else{
                     cout<<"Invalid action specified.  No action taken."<<"\n";
                     invalidAFlag  = true;invalidActionCount++;
@@ -64,7 +61,7 @@ class GameBoard
                 if(position[1]-1<4 && position[1]-1>=0)
                 {
                     position[1] =position[1]-1;
-                cout<<"Left action taken"<<" new position ["<<position[0]<<"]"<<"["<<position[1]<<"]"<<"\n";
+                    cout<<"Left action taken"<<" new position ["<<position[0]<<"]"<<"["<<position[1]<<"]"<<"\n";
                 }else{
                     cout<<"Invalid action specified.  No action taken."<<"\n";
                     invalidAFlag  = true;invalidActionCount++;
@@ -74,7 +71,7 @@ class GameBoard
                 if(position[1]+1<4 && position[1]+1>=0)
                 {
                     position[1] =position[1]+1;
-                cout<<"Right action taken"<<" new position ["<<position[0]<<"]"<<"["<<position[1]<<"]"<<"\n";
+                    cout<<"Right action taken"<<" new position ["<<position[0]<<"]"<<"["<<position[1]<<"]"<<"\n";
                 }else{
                     cout<<"Invalid action specified.  No action taken."<<"\n";
                     invalidAFlag  = true;invalidActionCount++;
@@ -110,7 +107,7 @@ class GameBoard
         return position[0]*4+position[1];
     }
     
-    int* getStateFA()
+    vector<int>& getStateFA()
     {
         return position;
     }

@@ -11,7 +11,7 @@
 #include "GameBoard.cpp"
 using namespace std;
 
-int main(int argc, const char * argv[]) {
+int main2(int argc, const char * argv[]) {
     
     //1.initialize game
     //create 3 x 4 grid world

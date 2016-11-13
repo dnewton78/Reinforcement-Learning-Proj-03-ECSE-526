@@ -1,11 +1,11 @@
-USE_SDL := 1
+USE_SDL := 0
 
 # This will likely need to be changed to suit your installation.
 ALE := ../Arcade-Learning-Environment-0.5.1
 
 FLAGS := -c -O2 -I$(ALE)/src -I$(ALE)/src/controllers -I$(ALE)/src/os_dependent -I$(ALE)/src/environment -I$(ALE)/src/external
 CXX := g++
-SOURCES := tt.cpp utilities.cpp
+SOURCES := tt.cpp utilities.cpp FunctionAproximation.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 LDFLAGS :=  -L$(ALE) -lale -lz
 EXECUTABLE=Agent

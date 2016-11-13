@@ -17,6 +17,7 @@
 #include <iostream>
 #include <ale_interface.hpp>
 #include "utilities.hpp"
+#include "FunctionAproximation.hpp"
 
 #ifdef __USE_SDL
   #include <SDL.h>
@@ -51,24 +52,61 @@ int main(int argc, char** argv) {
     ale.loadROM(argv[1]);
 
     // Get the vector of legal actions
-    ActionVect legal_actions = ale.getLegalActionSet();
+    ActionVect legal_actions = ale.getMinimalActionSet();
 
     Background bg;
     // bg.print();
-
-    // Play 10 episodes
-    // for (int episode=0; episode<10; episode++) {
-    for (int episode=0; episode<1; episode++) {
-        float totalReward = 0;
+    
+    //initialize function aproximation agent
+    double alpha = 0.1; double rho =0.3;
+    int lengthOfFeatureVector = 5;//state param number
+    int actions = legal_actions.size();
+    double reward = 0;
+    //variable for current state
+    vector<int> currentState;
+    //variable for new state
+    vector<int> newState;
+    
+    //create FA agent
+    FunctionAproximation myAgent = FunctionAproximation(lengthOfFeatureVector,alpha, rho,actions);
+    myAgent.printContents();
+    
+    //play several games and learn
+    int numberOfGames = 1000;
+    for (int i = 0; i<numberOfGames; i++)
+    {
+        //get the game state
+        currentState =
+        //get action from function aproximation by passing current state
+        Action currentAction = legal_actions[rand() % legal_actions.size()];//myAgent.getAction(newGame.getStateFA());
+        //variable for new action
+        Action newAction;
+        //variable for new state
+        newState;
+        //set reward to 0 before each game
+        reward = 0;
+        
+        //run game loop
         while (!ale.game_over()) {
-            Action a = legal_actions[rand() % legal_actions.size()];
-            // Apply the action and get the resulting reward
-            float reward = ale.act(PLAYER_A_NOOP);
-            totalReward += reward;
+            
+            //get action based on state
+            newAction = myAgent.getAction(newGame.getStateFA());
+            //make move & get reward
+            reward = reward + ale.act(newAction);
+            //get new state vector
+            newState = newGame.getStateFA();
+            //update utility function
+            myAgent.update(newState, reward);
+            
+            currentAction = newAction;
+            currentState = newState;
+
         }
-        cout << "Episode " << episode << " ended with score: " << totalReward << endl;
+        cout << "Episode " << i << " ended with score: " << totalReward << endl;
+        myAgent.printContents();
         ale.reset_game();
     }
+    
 
     return 0;
 }

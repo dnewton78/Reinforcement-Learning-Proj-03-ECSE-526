@@ -76,28 +76,30 @@ ScreenObject::ScreenObject()
   m_avg_i = 0;
   m_avg_j = 0;
   m_numOfPoints = 0;
-  m_isPresent = false;
-  m_isAvgCalculated = false;
+  isPresent = false;
 }
 
 void ScreenObject::accumulate(int i, int j)
 {
-  m_isPresent = true;
+  isPresent = true;
   m_sum_i += i;
   m_sum_j += j;
   m_numOfPoints++;
 }
 
+void ScreenObject::takeAverage()
+{
+  if (isPresent)
+  {
+    m_avg_i = m_sum_i / m_numOfPoints;
+    m_avg_j = m_sum_j / m_numOfPoints;
+  }
+}
+
 bool ScreenObject::doesCoordMatch(int i , int j)
 {
-  if (m_isPresent)
+  if (isPresent)
   {
-    if (! m_isAvgCalculated)
-    {
-      m_avg_i = m_sum_i / m_numOfPoints;
-      m_avg_j = m_sum_j / m_numOfPoints;
-      m_isAvgCalculated = true;
-    }
     if (m_avg_i == i && m_avg_j == j)
     {
       return true;
@@ -112,10 +114,25 @@ void ScreenObject::getAvgValues(int& rI, int& rJ)
   rJ = m_avg_j;
 }
 
-Coord::Coord() {}
+Coord::Coord()
+{
+  i = 0;
+  j = 0;
+}
 void Coord::update(ScreenObject& so)
 {
-  so.getAvgValues(i, j);
+  if (so.isPresent)
+  {
+    so.getAvgValues(i, j);
+  }
+}
+bool Coord::doesCoordMatch(int _i , int _j)
+{
+  if (i == _i && j == _j)
+  {
+    return true;
+  }
+  return false;
 }
 
 
@@ -136,41 +153,38 @@ const int Feature::NUMOFCOLORS;
 const int Feature::BIT_SHIFT;
 const int Feature::NUMOFBASICFEATURE;
 
+// Uncomment to output the current screen
+// int Feature::DEBUG_FILENUM = 0;
+
 Feature::Feature() {}
 
-void Feature::extractCoord(const ALEScreen& screen, Coord coords[])
+void Feature::extractCoord(const ALEScreen& screen, vector<Coord*>& vOut)
 {
   // Uncomment to output the current screen
-  // ofstream ofs_ppm;
-  // ofstream ofs_ref;
-
-  // char buffer[20];
-  // sprintf(buffer, "screen_%d.ppm", fileNum);
-  // ofs_ppm.open(buffer);
-  // sprintf(buffer, "screen_%d_.ppm", fileNum);
-  // ofs_ref.open(buffer);
-
-  // ofs_ppm << "P3\n160 167\n8\n";
-  // ofs_ref << "P3\n160 167\n8\n";
-
   ScreenObject pacman;
   ScreenObject ghost_1;
   ScreenObject ghost_2;
   ScreenObject ghost_3;
   ScreenObject ghost_4;
+  
+  // char buffer[20];
+  // ofstream ofs_ref;
+  // sprintf(buffer, "screen_%d_.ppm", DEBUG_FILENUM);
+  // ofs_ref.open(buffer);
+  // ofs_ref << "P3\n160 167\n8\n";
 
   for (int i = SCREEN_START_HEIGHT; i < SCREEN_END_HEIGHT; i++)
   {
     for (int j = 0; j < screen.width(); j++)
     {
       unsigned int pxl = screen.get(i,j);
-      // unsigned int b_3 = (pxl & 0xE0) >> 5;
-      // unsigned int b_2 = (pxl & 0x1C) >> 2;
-      // unsigned int b_1 = (pxl & 0x3);
+      unsigned int b_3 = (pxl & 0xE0) >> 5;
+      unsigned int b_2 = (pxl & 0x1C) >> 2;
+      unsigned int b_1 = (pxl & 0x3);
 
       // if (pxl == PXL_PACMAN || pxl == PXL_GHOST_1 || pxl == PXL_GHOST_2 || pxl == PXL_GHOST_3 || pxl == PXL_GHOST_4)
       // {
-        // ofs_ref << b_3 << " " << b_2 << " " << b_1 << " ";
+      //   ofs_ref << b_3 << " " << b_2 << " " << b_1 << " ";
         if (pxl == PXL_PACMAN)
         {
           pacman.accumulate(i, j);
@@ -199,6 +213,17 @@ void Feature::extractCoord(const ALEScreen& screen, Coord coords[])
     }
     // ofs_ref << "\n";
   }
+
+  pacman.takeAverage();
+  ghost_1.takeAverage();
+  ghost_2.takeAverage();
+  ghost_3.takeAverage();
+  ghost_4.takeAverage();
+  
+  // ofstream ofs_ppm;
+  // sprintf(buffer, "screen_%d.ppm", DEBUG_FILENUM);
+  // ofs_ppm.open(buffer);
+  // ofs_ppm << "P3\n160 167\n8\n";
 
   // for (int i = SCREEN_START_HEIGHT; i < SCREEN_END_HEIGHT; i++)
   // {
@@ -244,11 +269,20 @@ void Feature::extractCoord(const ALEScreen& screen, Coord coords[])
   // ofs_ppm.close();
   // ofs_ref.close();
 
-  coords[0].update(pacman);
-  coords[1].update(ghost_1);
-  coords[2].update(ghost_2);
-  coords[3].update(ghost_3);
-  coords[4].update(ghost_4);
+  if (vOut.size() == 0)
+  {
+    for (int i = 0; i < 5; i++)
+    {
+      vOut.push_back( new Coord() );
+    }
+  }
+  vOut[0]->update(pacman);
+  vOut[1]->update(ghost_1);
+  vOut[2]->update(ghost_2);
+  vOut[3]->update(ghost_3);
+  vOut[4]->update(ghost_4);
+
+  // DEBUG_FILENUM++;
 }
 
 void Feature::extractFeature(const ALEScreen& screen, vector<int>& vOut)

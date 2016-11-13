@@ -30,6 +30,7 @@ public:
   void takeAverage();
   bool doesCoordMatch(int i , int j);
   void getAvgValues(int& rI, int& rJ);
+  bool isPresent;
 
 private:
   int m_sum_i;
@@ -37,8 +38,6 @@ private:
   int m_avg_i;
   int m_avg_j;
   int m_numOfPoints;
-  bool m_isPresent;
-  bool m_isAvgCalculated;
 };
 
 class Coord
@@ -46,6 +45,12 @@ class Coord
 public:
   Coord();
   void update(ScreenObject& so);
+  bool doesCoordMatch(int _i, int _j);
+
+  void print()
+  {
+    cout << "i:" << i << " j:" << j << endl;
+  }
 
   int i;
   int j;
@@ -55,7 +60,7 @@ class Feature
 {
 public:
   Feature();
-  void extractCoord(const ALEScreen& screen, Coord coords[]);
+  void extractCoord(const ALEScreen& screen, vector<Coord*>& vOut);
   void extractFeature(const ALEScreen& screen, vector<int>& vOut);
 
 private:
@@ -79,6 +84,8 @@ private:
   static const int NUMOFCOLORS = 8;
   static const int BIT_SHIFT = 4;
   static const int NUMOFBASICFEATURE = TILE_WIDTH * TILE_HEIGHT * NUMOFCOLORS + 1;
+
+  // static int DEBUG_FILENUM;
 
   Background m_bg;
 };

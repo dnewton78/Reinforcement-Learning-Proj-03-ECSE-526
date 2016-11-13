@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     int numberOfGames = 1000;
     for (int i = 0; i<numberOfGames; i++)
     {
-        //get the game state
+        //get the game state and feature vectors
         currentState =
         //get action from function aproximation by passing current state
         Action currentAction = legal_actions[rand() % legal_actions.size()];//myAgent.getAction(newGame.getStateFA());

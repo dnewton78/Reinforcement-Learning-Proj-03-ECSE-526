@@ -3,6 +3,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <cassert>
+#include <cstdio> //
+
 #include "utilities.hpp"
 
 using namespace std;
@@ -67,6 +69,67 @@ void Background::print()
 }
 
 
+ScreenObject::ScreenObject()
+{
+  m_sum_i = 0;
+  m_sum_j = 0;
+  m_avg_i = 0;
+  m_avg_j = 0;
+  m_numOfPoints = 0;
+  m_isPresent = false;
+  m_isAvgCalculated = false;
+}
+
+void ScreenObject::accumulate(int i, int j)
+{
+  m_isPresent = true;
+  m_sum_i += i;
+  m_sum_j += j;
+  m_numOfPoints++;
+}
+
+bool ScreenObject::doesCoordMatch(int i , int j)
+{
+  if (m_isPresent)
+  {
+    if (! m_isAvgCalculated)
+    {
+      m_avg_i = m_sum_i / m_numOfPoints;
+      m_avg_j = m_sum_j / m_numOfPoints;
+      m_isAvgCalculated = true;
+    }
+    if (m_avg_i == i && m_avg_j == j)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+void ScreenObject::getAvgValues(int& rI, int& rJ)
+{
+  rI = m_avg_i;
+  rJ = m_avg_j;
+}
+
+Coord::Coord() {}
+void Coord::update(ScreenObject& so)
+{
+  so.getAvgValues(i, j);
+}
+
+
+const int Feature::SCREEN_START_HEIGHT;
+const int Feature::SCREEN_END_HEIGHT;
+
+const int Feature::IDX_PACMAN;
+
+const unsigned int Feature::PXL_PACMAN;
+const unsigned int Feature::PXL_GHOST_1;
+const unsigned int Feature::PXL_GHOST_2;
+const unsigned int Feature::PXL_GHOST_3;
+const unsigned int Feature::PXL_GHOST_4;
+
 const int Feature::TILE_WIDTH;
 const int Feature::TILE_HEIGHT;
 const int Feature::NUMOFCOLORS;
@@ -74,6 +137,119 @@ const int Feature::BIT_SHIFT;
 const int Feature::NUMOFBASICFEATURE;
 
 Feature::Feature() {}
+
+void Feature::extractCoord(const ALEScreen& screen, Coord coords[])
+{
+  // Uncomment to output the current screen
+  // ofstream ofs_ppm;
+  // ofstream ofs_ref;
+
+  // char buffer[20];
+  // sprintf(buffer, "screen_%d.ppm", fileNum);
+  // ofs_ppm.open(buffer);
+  // sprintf(buffer, "screen_%d_.ppm", fileNum);
+  // ofs_ref.open(buffer);
+
+  // ofs_ppm << "P3\n160 167\n8\n";
+  // ofs_ref << "P3\n160 167\n8\n";
+
+  ScreenObject pacman;
+  ScreenObject ghost_1;
+  ScreenObject ghost_2;
+  ScreenObject ghost_3;
+  ScreenObject ghost_4;
+
+  for (int i = SCREEN_START_HEIGHT; i < SCREEN_END_HEIGHT; i++)
+  {
+    for (int j = 0; j < screen.width(); j++)
+    {
+      unsigned int pxl = screen.get(i,j);
+      // unsigned int b_3 = (pxl & 0xE0) >> 5;
+      // unsigned int b_2 = (pxl & 0x1C) >> 2;
+      // unsigned int b_1 = (pxl & 0x3);
+
+      // if (pxl == PXL_PACMAN || pxl == PXL_GHOST_1 || pxl == PXL_GHOST_2 || pxl == PXL_GHOST_3 || pxl == PXL_GHOST_4)
+      // {
+        // ofs_ref << b_3 << " " << b_2 << " " << b_1 << " ";
+        if (pxl == PXL_PACMAN)
+        {
+          pacman.accumulate(i, j);
+        }
+        else if (pxl == PXL_GHOST_1)
+        {
+          ghost_1.accumulate(i, j);
+        }
+        else if (pxl == PXL_GHOST_2)
+        {
+          ghost_2.accumulate(i, j);
+        }
+        else if (pxl == PXL_GHOST_3)
+        {
+          ghost_3.accumulate(i, j);
+        }
+        else if (pxl == PXL_GHOST_4)
+        {
+          ghost_4.accumulate(i, j);
+        }
+      // }
+      // else
+      // {
+      //   ofs_ref << 0 << " " << 0 << " " << 0 << " ";
+      // }
+    }
+    // ofs_ref << "\n";
+  }
+
+  // for (int i = SCREEN_START_HEIGHT; i < SCREEN_END_HEIGHT; i++)
+  // {
+  //   for (int j = 0; j < screen.width(); j++)
+  //   {
+  //     unsigned int pxl = 0;
+  //     if (pacman.doesCoordMatch(i, j))
+  //     {
+  //       pxl = PXL_PACMAN;
+  //     }
+  //     else if (ghost_1.doesCoordMatch(i, j))
+  //     {
+  //       pxl = PXL_GHOST_1;
+  //     }
+  //     else if (ghost_2.doesCoordMatch(i, j))
+  //     {
+  //       pxl = PXL_GHOST_2;
+  //     }
+  //     else if (ghost_3.doesCoordMatch(i, j))
+  //     {
+  //       pxl = PXL_GHOST_3;
+  //     }
+  //     else if (ghost_4.doesCoordMatch(i, j))
+  //     {
+  //       pxl = PXL_GHOST_4;
+  //     }
+
+  //     if (pxl == 0)
+  //     {
+  //       ofs_ppm << 0 << " " << 0 << " " << 0 << " ";
+  //     }
+  //     else
+  //     {
+  //       unsigned int b_3 = (pxl & 0xE0) >> 5;
+  //       unsigned int b_2 = (pxl & 0x1C) >> 2;
+  //       unsigned int b_1 = (pxl & 0x3);
+  //       ofs_ppm << b_3 << " " << b_2 << " " << b_1 << " ";
+  //     }
+  //   }
+  //   ofs_ppm << "\n";
+  // }
+
+  // ofs_ppm.close();
+  // ofs_ref.close();
+
+  coords[0].update(pacman);
+  coords[1].update(ghost_1);
+  coords[2].update(ghost_2);
+  coords[3].update(ghost_3);
+  coords[4].update(ghost_4);
+}
 
 void Feature::extractFeature(const ALEScreen& screen, vector<int>& vOut)
 {

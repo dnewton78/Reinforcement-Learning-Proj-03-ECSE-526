@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <random>
+#include <ale_interface.hpp>
 using namespace std;
 
 class FunctionAproximation

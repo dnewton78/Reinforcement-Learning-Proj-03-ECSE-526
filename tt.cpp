@@ -30,13 +30,15 @@ using namespace std;
 
 
 int main(int argc, char** argv) {
+    
+    //get Arguments from command line
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " rom_file" << std::endl;
         return 1;
     }
 
+    //create ale interface
     ALEInterface ale;
-
     // Get & Set the desired settings
     ale.setInt("random_seed", 123);
     //The default is already 0.25, this is just an example
@@ -53,15 +55,17 @@ int main(int argc, char** argv) {
 
     // Get the vector of legal actions
     ActionVect legal_actions = ale.getMinimalActionSet();
-
-    Background bg;
-    // bg.print();
     
-    //initialize function aproximation agent
-    double alpha = 0.1; double rho =0.3;
+    //load background
+    Background bg;
+    
+    //initialize function aproximation agent variables
+    double alpha = 0.1;
+    double rho =0.3;
     int lengthOfFeatureVector = 5;//state param number
     int actions = legal_actions.size();
     double reward = 0;
+    
     //variable for current state
     vector<int> currentState;
     //variable for new state
@@ -75,7 +79,7 @@ int main(int argc, char** argv) {
     int numberOfGames = 1000;
     for (int i = 0; i<numberOfGames; i++)
     {
-        //get the game state
+        //get the game state and feature vectors
         currentState =
         //get action from function aproximation by passing current state
         Action currentAction = legal_actions[rand() % legal_actions.size()];//myAgent.getAction(newGame.getStateFA());
@@ -107,6 +111,7 @@ int main(int argc, char** argv) {
         ale.reset_game();
     }
     
+    //save learned function weights
 
     return 0;
 }

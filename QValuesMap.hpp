@@ -9,7 +9,11 @@
 #ifndef QValuesMap_hpp
 #define QValuesMap_hpp
 
+#include <math.h>
+#include <random>
 #include <stdio.h>
+#include <iostream>
+using namespace std;
 
 class QValuesMap
 {
@@ -24,6 +28,7 @@ class QValuesMap
     double getQValue(int state, int action);
     int getBestAction(int state);
     void storeQValue(int state, int action, double qVal);
+    void printQTable();
 
 };
 #endif /* QValuesMap_hpp */

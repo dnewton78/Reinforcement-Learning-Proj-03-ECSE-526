@@ -14,7 +14,7 @@ FunctionAproximation:: FunctionAproximation(int featureNumber, double alpha, dou
     //set featurenumber and size of wieght array
     this->rho = rho;
     this->featureNumber = featureNumber*2;//multiply by two becasue there are two coordinates per feature and we want to create a weight for each coordinate
-    this->weights.resize(featureNumber+1);//the weight vector adds one extra term in accordance with U(s) = Theta1+Theta2*feat1+theta2*feat2...etc....
+    this->weights.resize(this->featureNumber+1);//the weight vector adds one extra term in accordance with U(s) = Theta1+Theta2*feat1+theta2*feat2...etc....
     this->alpha = alpha;
     this->observedUtility = 0;
     this->predictedUtility = 0;
@@ -23,7 +23,7 @@ FunctionAproximation:: FunctionAproximation(int featureNumber, double alpha, dou
     uniform_real_distribution<double> distribution(0,1);
 
     //initialize weights randomly
-    for (int i =0; i<featureNumber+1; i++)
+    for (int i =0; i<this->featureNumber+1; i++)
     {
         weights[i] = distribution(generator);
     }
@@ -59,7 +59,6 @@ void FunctionAproximation:: update(vector<Coord>& features, double observedUtili
 double FunctionAproximation::getPredictedUtility(vector<Coord>& features)
 {
     double predictedUtility = 0;
-    
     //transfer coordinates to single feature vector
     vector<double> coordinateArray;
     for (int i =0; i<features.size(); i++)
@@ -67,7 +66,6 @@ double FunctionAproximation::getPredictedUtility(vector<Coord>& features)
         coordinateArray.push_back(features[i].i);
         coordinateArray.push_back(features[i].j);
     }
-    
     for (int i =0; i<featureNumber+1; i++)
     {
         if(i==0)
@@ -88,7 +86,6 @@ int FunctionAproximation::getAction(vector<Coord>& features)
     //use randomness as exploration strategy to try new states
     uniform_real_distribution<double> distribution(0,1);
     double randomNum = distribution(generator);
-    
     //if random number is <= rho then slect random action
     if(randomNum<=rho)
     {
@@ -105,7 +102,6 @@ int FunctionAproximation::getAction(vector<Coord>& features)
 //need to rewrite this for specifics of game
 int FunctionAproximation::getBestAction(vector<Coord>& features)
 {
-    
     double pUtility = 0;
     double maxUtility = 0;
     vector<Coord> actionToTest(features.size());

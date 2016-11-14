@@ -59,8 +59,8 @@ int main(int argc, char** argv) {
     // Get the vector of legal actions
     ActionVect legal_actions = ale.getMinimalActionSet();
     
-    //load background
-    Background bg;
+//    //load background
+//    Background bg;
     
     //initialize function aproximation agent variables
     double alpha = 0.1;
@@ -111,7 +111,6 @@ int main(int argc, char** argv) {
             newFeature.extractCoord(ale.getScreen(), newState);
             //update utility function
             myAgent.update(newState, reward);
-            
             currentAction = newAction;
             currentState = newState;
             

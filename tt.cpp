@@ -37,12 +37,12 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    //create ale interface
+    //create ale interface & set settings
     ALEInterface ale;
-    // Get & Set the desired settings
-    ale.setInt("random_seed", 123);
-    //The default is already 0.25, this is just an example
-    ale.setFloat("repeat_action_probability", 0.25);
+    // Skip 5 frames
+    ale.setInt("frame_skip", 5);
+    ale.setBool("color_averaging", false);
+    
     
 #ifdef __USE_SDL
     ale.setBool("display_screen", true);
@@ -86,11 +86,12 @@ int main(int argc, char** argv) {
     myAgent.printContents();
     
     //play several games and learn
-    int numberOfGames = 1000;
+    int numberOfGames = 10;
+    double totalScore = 0;
     for (int i = 0; i<numberOfGames; i++)
     {
         //get the game state and feature vectors
-        newFeature.extractCoord(ale, currentState);
+        newFeature.extractCoord(ale.getScreen(), currentState);
         //get action from function aproximation by passing current state
         Action currentAction = legal_actions[myAgent.getAction(currentState)];
         //variable for new action
@@ -104,9 +105,10 @@ int main(int argc, char** argv) {
             //get action based on state
             newAction = legal_actions[myAgent.getAction(currentState)];
             //make move & get reward
-            reward = ale.act(newAction)-reward;
+            totalScore = ale.act(newAction);
+            reward = totalScore-reward;
             //get new state vector
-            newFeature.extractCoord(ale, newState);
+            newFeature.extractCoord(ale.getScreen(), newState);
             //update utility function
             myAgent.update(newState, reward);
             
@@ -114,7 +116,7 @@ int main(int argc, char** argv) {
             currentState = newState;
             
         }
-        cout << "Episode " << i << " ended with score: " << totalReward << endl;
+        cout << "Episode " << i << " ended with score: " << totalScore << endl;
         myAgent.printContents();
         ale.reset_game();
     }

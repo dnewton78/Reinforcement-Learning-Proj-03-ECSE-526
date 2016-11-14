@@ -13,7 +13,7 @@ FunctionAproximation:: FunctionAproximation(int featureNumber, double alpha, dou
 {
     //set featurenumber and size of wieght array
     this->rho = rho;
-    this->featureNumber = featureNumber;
+    this->featureNumber = featureNumber*2;//multiply by two becasue there are two coordinates per feature and we want to create a weight for each coordinate
     this->weights.resize(featureNumber+1);//the weight vector adds one extra term in accordance with U(s) = Theta1+Theta2*feat1+theta2*feat2...etc....
     this->alpha = alpha;
     this->observedUtility = 0;
@@ -29,11 +29,19 @@ FunctionAproximation:: FunctionAproximation(int featureNumber, double alpha, dou
     }
 }
 
-void FunctionAproximation:: update(vector<int>& features, double observedUtility)
+void FunctionAproximation:: update(vector<Coord>& features, double observedUtility)
 {
     //calculate predicted utlity useing function
     this->predictedUtility = this->getPredictedUtility(features);
     this->observedUtility = observedUtility;
+    //transfer coordinates to single feature vector
+    vector<double> coordinateArray;
+    for (int i =0; i<features.size(); i++)
+    {
+        coordinateArray.push_back(features[i].i);
+        coordinateArray.push_back(features[i].j);
+    }
+    
     //use update equations to update each weight
     for (int i =0; i<featureNumber+1; i++)
     {
@@ -43,14 +51,23 @@ void FunctionAproximation:: update(vector<int>& features, double observedUtility
             weights[i] = weights[i]+alpha*(observedUtility-predictedUtility);
         }else
         {
-            weights[i] = weights[i]+alpha*(observedUtility-predictedUtility)*features[i-1];
+            weights[i] = weights[i]+alpha*(observedUtility-predictedUtility)*coordinateArray[i-1];
         }
     }
 }
 
-double FunctionAproximation::getPredictedUtility(vector<int>& features)
+double FunctionAproximation::getPredictedUtility(vector<Coord>& features)
 {
     double predictedUtility = 0;
+    
+    //transfer coordinates to single feature vector
+    vector<double> coordinateArray;
+    for (int i =0; i<features.size(); i++)
+    {
+        coordinateArray.push_back(features[i].i);
+        coordinateArray.push_back(features[i].j);
+    }
+    
     for (int i =0; i<featureNumber+1; i++)
     {
         if(i==0)
@@ -58,13 +75,13 @@ double FunctionAproximation::getPredictedUtility(vector<int>& features)
             predictedUtility= weights[i];
         }else
         {
-            predictedUtility= predictedUtility+weights[i]*features[i-1];
+            predictedUtility= predictedUtility+weights[i]*coordinateArray[i-1];
         }
     }
     return predictedUtility;
 }
 
-int FunctionAproximation::getAction(vector<int>& features)
+int FunctionAproximation::getAction(vector<Coord>& features)
 {
     int bestAction;
     
@@ -86,38 +103,65 @@ int FunctionAproximation::getAction(vector<int>& features)
 }
 
 //need to rewrite this for specifics of game
-int FunctionAproximation::getBestAction(vector<int>& features)
+int FunctionAproximation::getBestAction(vector<Coord>& features)
 {
-    int bestAction = 0;
+    
     double pUtility = 0;
     double maxUtility = 0;
-    vector<int> actionToTest(features.size());
-    //cycle through possible actions and get predicted utility for each
+    vector<Coord> actionToTest(features.size());
+    //copy current state vector to test different different actions
+    for (int i =0 ; i<features.size(); i++)
+    {
+        actionToTest[i].i =features[i].i;
+        actionToTest[i].j =features[i].j;
+    }
+    //cycle through possible actions and get predicted utility for each; assumes pacman is in the 0 slot
     //try up
-    actionToTest[0] = features[0]+1;
-    actionToTest[1] = features[1];
+    actionToTest[0].i = features[0].i;//get pacmans x coordinate
+    actionToTest[0].j = features[0].j+1; //get pacmans y coordinate and add 1
     pUtility = this->getPredictedUtility(actionToTest);
     maxUtility = pUtility;
+    int bestAction = 0;
     
-    //try dn
-    actionToTest[0] = features[0]-1;
-    actionToTest[1] = features[1];
+    //try down
+    actionToTest[0].i = features[0].i;//get pacmans x coordinate
+    actionToTest[0].j = features[0].j-1; //get pacmans y coordinate and sub 1
     pUtility = this->getPredictedUtility(actionToTest);
     if(pUtility>maxUtility)
+    {
+        maxUtility = pUtility;
         bestAction = 1;
+    }
     
     //try left
-    actionToTest[0] = features[0];
-    actionToTest[1] = features[1]-1;
+    actionToTest[0].i = features[0].i-1;//get pacmans x coordinate
+    actionToTest[0].j = features[0].j; //get pacmans y coordinate and sub 1
     pUtility = this->getPredictedUtility(actionToTest);
     if(pUtility>maxUtility)
+    {
+        maxUtility = pUtility;
         bestAction = 2;
+    }
+    
     //try right
-    actionToTest[0] = features[0];
-    actionToTest[1] = features[1]+1;
+    actionToTest[0].i = features[0].i+1;//get pacmans x coordinate
+    actionToTest[0].j = features[0].j; //get pacmans y coordinate and sub 1
     pUtility = this->getPredictedUtility(actionToTest);
     if(pUtility>maxUtility)
+    {
+        maxUtility = pUtility;
         bestAction = 3;
+    }
+    
+    //try nothing
+    actionToTest[0].i = features[0].i;//get pacmans x coordinate
+    actionToTest[0].j = features[0].j; //get pacmans y coordinate and sub 1
+    pUtility = this->getPredictedUtility(actionToTest);
+    if(pUtility>maxUtility)
+    {
+        maxUtility = pUtility;
+        bestAction = 4;
+    }
     
     return bestAction;
 }

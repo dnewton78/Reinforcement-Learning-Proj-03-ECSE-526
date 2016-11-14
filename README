@@ -1,3 +1,6 @@
+Compilation:
+Before run make command, make sure you set the path to ALE right in the Makefile
+
 Usage:
 ./Agent <option> <path to ROM>
 

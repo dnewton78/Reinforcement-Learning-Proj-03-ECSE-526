@@ -1,3 +1,5 @@
+We assume that ALE is already set up so our source code doesn't come with ALE. Also, it doesn't provide ROM.
+
 Compilation:
 Before run make command, make sure you set the path to ALE right in the Makefile
 
@@ -7,4 +9,3 @@ Usage:
 Options:
 -t: Test mode. No learning would be done. Weights will be loaded from file. Default is traning mode
 -e: Setting number of episodes to run. Default is 10
-

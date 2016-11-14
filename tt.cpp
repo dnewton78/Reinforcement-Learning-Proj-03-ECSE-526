@@ -15,6 +15,7 @@
  **************************************************************************** */
 
 #include <iostream>
+#include <getopt.h>
 #include <ale_interface.hpp>
 #include "utilities.hpp"
 #include "FunctionAproximation.hpp"
@@ -23,26 +24,52 @@
   #include <SDL.h>
 #endif
 
-#define RAM_SIZE (128)
-#define SKIPFRAMES (262)
 
 using namespace std;
 
+void getArgs(int argc, char** argv, bool& rIsTest, int& rNumOfEpisodes)
+{
+    int option = 0;
+    while ((option = getopt(argc, argv, "te:")) != -1)
+    {
+        if (option == -1)
+        {
+            break;
+        }
 
-int main(int argc, char** argv) {
+        switch(option)
+        {
+            case 't':
+                cout << "tst" << endl;
+                rIsTest = true;
+                break;
+            case 'e':
+                cout << "Episode" << endl;
+                rNumOfEpisodes = atoi(optarg);
+                break;
+        }
+    }
+}
+
+int main(int argc, char** argv)
+{
     
     //get Arguments from command line
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " rom_file" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " -t (test mode) -e (number of episodes) rom_file" << std::endl;
         return 1;
     }
-    
+
+    bool isTest = false;
+    int numOfEpisodes = 10;
+
+    getArgs(argc, argv, isTest, numOfEpisodes);
+
     //create ale interface & set settings
     ALEInterface ale;
     // Skip 5 frames
     ale.setInt("frame_skip", 5);
     ale.setBool("color_averaging", false);
-    
     
 #ifdef __USE_SDL
     ale.setBool("display_screen", true);
@@ -58,9 +85,6 @@ int main(int argc, char** argv) {
     
     // Get the vector of legal actions
     ActionVect legal_actions = ale.getMinimalActionSet();
-    
-//    //load background
-//    Background bg;
     
     //initialize function aproximation agent variables
     double alpha = 0.01;
@@ -86,9 +110,8 @@ int main(int argc, char** argv) {
     myAgent.printContents();
     
     //play several games and learn
-    int numberOfGames = 10;
     double totalScore = 0;
-    for (int i = 0; i<numberOfGames; i++)
+    for (int i = 0; i<numOfEpisodes; i++)
     {
         //get the game state and feature vectors
         newFeature.extractCoord(ale.getScreen(), currentState);

@@ -1,0 +1,7 @@
+Usage:
+./Agent <option> <path to ROM>
+
+Options:
+-t: Test mode. No learning would be done. Weights will be loaded from file. Default is traning mode
+-e: Setting number of episodes to run. Default is 10
+

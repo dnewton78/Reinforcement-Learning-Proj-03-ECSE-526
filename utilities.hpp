@@ -1,9 +1,22 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
+#include <string>
 #include <ale_interface.hpp>
 
 using namespace std;
+
+class WeightManager
+{
+public:
+  WeightManager();
+  static void loadWeights(vector<double>& vec_weights);
+  static void saveWeights(vector<double>& vec_weights);
+
+private:
+  static const string FILENAME_WEIGHT;
+  static const int PRECISION = 12;
+};
 
 class ScreenObject
 {
@@ -40,11 +53,7 @@ public:
   void updatePos(ScreenObject& so);
   void updateVelo(ScreenObject& so);
   bool doesCoordMatch(int _i, int _j);
-
-  void print()
-  {
-    cout << "i:" << i << " j:" << j << endl;
-  }
+  void print();
 
   int i;
   int j;

@@ -1,13 +1,64 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <stdexcept>
-#include <cassert>
-#include <cstdio> //
+#include <iomanip>
 
 #include "utilities.hpp"
 
 using namespace std;
+
+
+const string WeightManager::FILENAME_WEIGHT = "weights.wgt";
+const int WeightManager::PRECISION;
+WeightManager::WeightManager() {}
+
+void WeightManager::loadWeights(vector<double>& vec_weights)
+{
+  // Clean up the existing values
+  if (vec_weights.size() != 0)
+  {
+    vec_weights.clear();
+  }
+
+  string line;
+  char delimiter = ' ';
+
+  ifstream weightFile(FILENAME_WEIGHT);
+
+  if (! weightFile.is_open() )
+  {
+    cerr << FILENAME_WEIGHT<< " could not be opened. Please check paths and permissions" << endl;
+    exit(1);
+  }
+
+  while( std::getline(weightFile, line) )
+  {
+    stringstream ss(line);
+    string val;
+
+    // Use stringstream to get items seperated by the space
+    while( std::getline(ss, val, delimiter))
+    {
+      vec_weights.push_back( stod(val) );
+    }
+  }
+
+  weightFile.close();
+}
+void WeightManager::saveWeights(vector<double>& vec_weights)
+{
+  ofstream ofs_weight;
+
+  // This will overwrite the file
+  ofs_weight.open(FILENAME_WEIGHT);
+  for (int i = 0; i < vec_weights.size(); i++)
+  {
+    ofs_weight << setprecision(PRECISION) << vec_weights[i] << " ";
+  }
+
+  ofs_weight.close();
+}
+
 
 ScreenObject::ScreenObject()
 {
@@ -101,6 +152,10 @@ bool Coord::doesCoordMatch(int _i , int _j)
     return true;
   }
   return false;
+}
+void Coord::print()
+{
+  cout << "i:" << i << " j:" << j << endl;
 }
 
 

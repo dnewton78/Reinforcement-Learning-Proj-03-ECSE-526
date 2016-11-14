@@ -64,11 +64,13 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    bool isTest = false;
-    int numOfEpisodes = 10;
+    bool isTest = true;
+    int numOfEpisodes = 500;
 
     int romArgPos = getArgs(argc, argv, isTest, numOfEpisodes);
 
+    //cout<< "isTest "<<isTest<< "numOfEpisodes "<<numOfEpisodes;
+    
     //create ale interface & set settings
     ALEInterface ale;
     // Skip 5 frames
@@ -92,7 +94,7 @@ int main(int argc, char** argv)
     
     //initialize function aproximation agent variables
     double alpha = 0.000001;
-    double rho =0.3;
+    double rho =0.1;
     int numberOfFeatures = 9;//state param number
     int actionNumber = 5;
     
@@ -115,7 +117,7 @@ int main(int argc, char** argv)
     myAgent.setOfActions[4] = 0;//no action
     
     //check if in training mode or play mode
-    if(isTest)
+    if(!isTest)
     {
         
         //play several games and learn
@@ -151,7 +153,11 @@ int main(int argc, char** argv)
             cout << "||||||||||||||||Episode " << i << " ended with score: " << totalScore << endl;
             ale.reset_game();
             myAgent.printContents();
+            
+            //adapt exploration to become less through time
+            //myAgent.rho = myAgent.rho*(1.0/((double)i+1.0));
         }
+        
         
         //save learned function weights
         wManager.saveWeights(myAgent.weights);

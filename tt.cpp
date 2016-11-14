@@ -91,7 +91,6 @@ int main(int argc, char** argv)
     double rho =0.3;
     int numberOfFeatures = 5;//state param number
     int actionNumber = 5;
-    double reward = 0;
     
     
     //variable for current state
@@ -110,7 +109,6 @@ int main(int argc, char** argv)
     myAgent.printContents();
     
     //play several games and learn
-    double totalScore = 0;
     for (int i = 0; i<numOfEpisodes; i++)
     {
         //get the game state and feature vectors
@@ -119,8 +117,8 @@ int main(int argc, char** argv)
         Action currentAction = legal_actions[2];//startout going left
         //variable for new action
         Action newAction;
-        //set reward to 0 before each game
-        reward = 0;
+        // Total score for each episodes
+        float totalScore = 0;
         
         //run game loop
         while (!ale.game_over()) {
@@ -128,15 +126,14 @@ int main(int argc, char** argv)
             //get action based on state
             newAction = legal_actions[myAgent.getAction(currentState)];
             //make move & get reward
-            totalScore = ale.act(newAction);
-            reward = totalScore-reward;
+            float reward = ale.act(newAction);
+            totalScore += reward;
             //get new state vector
             newFeature.extractCoord(ale.getScreen(), newState);
             //update utility function
             myAgent.update(newState, reward);
             currentAction = newAction;
             currentState = newState;
-            
         }
         cout << "Episode " << i << " ended with score: " << totalScore << endl;
         myAgent.printContents();

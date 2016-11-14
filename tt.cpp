@@ -59,11 +59,11 @@ int main(int argc, char** argv) {
     // Get the vector of legal actions
     ActionVect legal_actions = ale.getMinimalActionSet();
     
-    //load background
-    Background bg;
+//    //load background
+//    Background bg;
     
     //initialize function aproximation agent variables
-    double alpha = 0.1;
+    double alpha = 0.01;
     double rho =0.3;
     int numberOfFeatures = 5;//state param number
     int actionNumber = 5;
@@ -78,11 +78,11 @@ int main(int argc, char** argv) {
     //create FA agent
     FunctionAproximation myAgent = FunctionAproximation(numberOfFeatures,alpha, rho,actionNumber);
     //set possible actions
-    myAgent.setOfActions[0] = 2;//0 up 1 down 2 left 3 right 4 no action
-    myAgent.setOfActions[1] = 4;//0 up 1 down 2 left 3 right 4 no action
-    myAgent.setOfActions[2] = 3;//0 up 1 down 2 left 3 right 4 no action
-    myAgent.setOfActions[3] = 2;//0 up 1 down 2 left 3 right 4 no action
-    myAgent.setOfActions[4] = 0;//0 up 1 down 2 left 3 right 4 no action
+    myAgent.setOfActions[0] = 2;//0 up
+    myAgent.setOfActions[1] = 4;//1 down
+    myAgent.setOfActions[2] = 3;//left 3
+    myAgent.setOfActions[3] = 2;//right 4
+    myAgent.setOfActions[4] = 0;//no action
     myAgent.printContents();
     
     //play several games and learn
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
         //get the game state and feature vectors
         newFeature.extractCoord(ale.getScreen(), currentState);
         //get action from function aproximation by passing current state
-        Action currentAction = legal_actions[myAgent.getAction(currentState)];
+        Action currentAction = legal_actions[2];//startout going left
         //variable for new action
         Action newAction;
         //set reward to 0 before each game
@@ -111,7 +111,6 @@ int main(int argc, char** argv) {
             newFeature.extractCoord(ale.getScreen(), newState);
             //update utility function
             myAgent.update(newState, reward);
-            
             currentAction = newAction;
             currentState = newState;
             

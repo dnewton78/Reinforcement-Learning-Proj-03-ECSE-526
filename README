@@ -1,7 +1,9 @@
 We assume that ALE is already set up so our source code doesn't come with ALE. Also, it doesn't provide ROM.
 
 Compilation:
-Before run make command, make sure you set the path to ALE right in the Makefile
+Before run make command, make sure:
+Chagne USE_SDL flag to your preference
+You set the path to ALE right in the Makefile
 
 Usage:
 ./Agent <option> <path to ROM>
@@ -9,3 +11,7 @@ Usage:
 Options:
 -t: Test mode. No learning would be done. Weights will be loaded from file. Default is traning mode
 -e: Setting number of episodes to run. Default is 10
+
+Note
+If you run training, it will overwrite the existing weights file.
+It comes with weights_1000.wgt, which should be renamed if you want to test with trained agent.

@@ -27,24 +27,35 @@ class ScreenObject
 public:
   ScreenObject();
   void accumulate(int i, int j);
-  void takeAverage();
   bool doesCoordMatch(int i , int j);
   void getAvgValues(int& rI, int& rJ);
-  bool isPresent;
+  void getVelocity(int& rI, int& rJ);
 
 private:
+  // Variables for velocity calculation
+  int m_last_i;
+  int m_last_j;
+  int m_cur_i;
+  int m_cur_j;
+  int m_timeDiff;
+
   int m_sum_i;
   int m_sum_j;
-  int m_avg_i;
-  int m_avg_j;
   int m_numOfPoints;
+  bool isPresent;
+
+  // Different types of reset. The first one calls the rest
+  void reset_1();
+  void reset_2();
+  void reset_3();
 };
 
 class Coord
 {
 public:
   Coord();
-  void update(ScreenObject& so);
+  void updatePos(ScreenObject& so);
+  void updateVelo(ScreenObject& so);
   bool doesCoordMatch(int _i, int _j);
 
   void print()
@@ -71,13 +82,10 @@ private:
 
   static const int IDX_PACMAN = 0;
   static const int NUMOFOBJECTS = 5;
+  static const int NUMCOORDFEATURE = 9;
 
   // Pixel color of each objects
-  static const unsigned int PXL_PACMAN = 42;
-  static const unsigned int PXL_GHOST_1 = 70;
-  static const unsigned int PXL_GHOST_2 = 38;
-  static const unsigned int PXL_GHOST_3 = 184;
-  static const unsigned int PXL_GHOST_4 = 88;
+  static unsigned int PXLS[NUMOFOBJECTS];
 
   static const int TILE_WIDTH = 16;
   static const int TILE_HEIGHT = 21;
@@ -85,8 +93,7 @@ private:
   static const int BIT_SHIFT = 4;
   static const int NUMOFBASICFEATURE = TILE_WIDTH * TILE_HEIGHT * NUMOFCOLORS + 1;
 
-  // static int DEBUG_FILENUM;
-
+  ScreenObject so[5];
   Background m_bg;
 };
 

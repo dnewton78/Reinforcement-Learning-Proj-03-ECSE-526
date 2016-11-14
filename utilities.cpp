@@ -69,14 +69,14 @@ void Background::print()
 }
 
 
+
 ScreenObject::ScreenObject()
 {
-  m_sum_i = 0;
-  m_sum_j = 0;
-  m_avg_i = 0;
-  m_avg_j = 0;
-  m_numOfPoints = 0;
-  isPresent = false;
+  m_last_i = 0;
+  m_last_j = 0;
+  m_cur_i = 0;
+  m_cur_j = 0;
+  reset_1();
 }
 
 void ScreenObject::accumulate(int i, int j)
@@ -87,45 +87,74 @@ void ScreenObject::accumulate(int i, int j)
   m_numOfPoints++;
 }
 
-void ScreenObject::takeAverage()
-{
-  if (isPresent)
-  {
-    m_avg_i = m_sum_i / m_numOfPoints;
-    m_avg_j = m_sum_j / m_numOfPoints;
-  }
-}
-
-bool ScreenObject::doesCoordMatch(int i , int j)
-{
-  if (isPresent)
-  {
-    if (m_avg_i == i && m_avg_j == j)
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
 void ScreenObject::getAvgValues(int& rI, int& rJ)
 {
-  rI = m_avg_i;
-  rJ = m_avg_j;
+  if (isPresent)
+  {
+    m_last_i = m_cur_i;
+    m_last_j = m_cur_j;
+
+    m_cur_i = m_sum_i / m_numOfPoints;
+    m_cur_j = m_sum_j / m_numOfPoints;
+
+    rI = m_cur_i;
+    rJ = m_cur_j;
+    reset_2();
+  }
 }
+
+void ScreenObject::getVelocity(int& rI, int& rJ)
+{
+  if (isPresent)
+  {
+    rI = (m_cur_i - m_last_i) / m_timeDiff;
+    rJ = (m_cur_j - m_last_j) / m_timeDiff;
+    reset_3();
+  }
+  else
+  {
+    m_timeDiff++;
+  }
+
+}
+
+void ScreenObject::reset_1()
+{
+  reset_2();
+  reset_3();
+}
+
+void ScreenObject::reset_2()
+{
+  m_sum_i = 0;
+  m_sum_j = 0;
+  m_numOfPoints = 0;
+}
+
+void ScreenObject::reset_3()
+{
+  m_timeDiff = 1;
+  isPresent = false;
+}
+
+
 
 Coord::Coord()
 {
   i = 0;
   j = 0;
 }
-void Coord::update(ScreenObject& so)
+
+void Coord::updatePos(ScreenObject& so)
 {
-  if (so.isPresent)
-  {
-    so.getAvgValues(i, j);
-  }
+  so.getAvgValues(i, j);
 }
+
+void Coord::updateVelo(ScreenObject& so)
+{
+  so.getVelocity(i, j);
+}
+
 bool Coord::doesCoordMatch(int _i , int _j)
 {
   if (i == _i && j == _j)
@@ -140,12 +169,11 @@ const int Feature::SCREEN_START_HEIGHT;
 const int Feature::SCREEN_END_HEIGHT;
 
 const int Feature::IDX_PACMAN;
+const int Feature::NUMOFOBJECTS;
+const int Feature::NUMCOORDFEATURE;
 
-const unsigned int Feature::PXL_PACMAN;
-const unsigned int Feature::PXL_GHOST_1;
-const unsigned int Feature::PXL_GHOST_2;
-const unsigned int Feature::PXL_GHOST_3;
-const unsigned int Feature::PXL_GHOST_4;
+
+unsigned int Feature::PXLS[5] = {42, 38, 70, 88, 184};
 
 const int Feature::TILE_WIDTH;
 const int Feature::TILE_HEIGHT;
@@ -153,23 +181,14 @@ const int Feature::NUMOFCOLORS;
 const int Feature::BIT_SHIFT;
 const int Feature::NUMOFBASICFEATURE;
 
-// Uncomment to output the current screen
-// int Feature::DEBUG_FILENUM = 0;
-
 Feature::Feature() {}
 
 void Feature::extractCoord(const ALEScreen& screen, vector<Coord*>& vOut)
-{
+{  
   // Uncomment to output the current screen
-  ScreenObject pacman;
-  ScreenObject ghost_1;
-  ScreenObject ghost_2;
-  ScreenObject ghost_3;
-  ScreenObject ghost_4;
-  
   // char buffer[20];
   // ofstream ofs_ref;
-  // sprintf(buffer, "screen_%d_.ppm", DEBUG_FILENUM);
+  // sprintf(buffer, "screen_%d_.ppm", fileNum);
   // ofs_ref.open(buffer);
   // ofs_ref << "P3\n160 167\n8\n";
 
@@ -178,33 +197,24 @@ void Feature::extractCoord(const ALEScreen& screen, vector<Coord*>& vOut)
     for (int j = 0; j < screen.width(); j++)
     {
       unsigned int pxl = screen.get(i,j);
-      unsigned int b_3 = (pxl & 0xE0) >> 5;
-      unsigned int b_2 = (pxl & 0x1C) >> 2;
-      unsigned int b_1 = (pxl & 0x3);
+      bool isObjFound = false;
 
-      // if (pxl == PXL_PACMAN || pxl == PXL_GHOST_1 || pxl == PXL_GHOST_2 || pxl == PXL_GHOST_3 || pxl == PXL_GHOST_4)
+      for (int k = 0; k < NUMOFOBJECTS; k++)
+      {
+        if (pxl == PXLS[k])
+        {
+          isObjFound = true;
+          so[k].accumulate(i, j);
+          break;
+        }
+      }
+
+      // if (isObjFound)
       // {
+      //   unsigned int b_3 = (pxl & 0xE0) >> 5;
+      //   unsigned int b_2 = (pxl & 0x1C) >> 2;
+      //   unsigned int b_1 = (pxl & 0x3);
       //   ofs_ref << b_3 << " " << b_2 << " " << b_1 << " ";
-        if (pxl == PXL_PACMAN)
-        {
-          pacman.accumulate(i, j);
-        }
-        else if (pxl == PXL_GHOST_1)
-        {
-          ghost_1.accumulate(i, j);
-        }
-        else if (pxl == PXL_GHOST_2)
-        {
-          ghost_2.accumulate(i, j);
-        }
-        else if (pxl == PXL_GHOST_3)
-        {
-          ghost_3.accumulate(i, j);
-        }
-        else if (pxl == PXL_GHOST_4)
-        {
-          ghost_4.accumulate(i, j);
-        }
       // }
       // else
       // {
@@ -214,75 +224,25 @@ void Feature::extractCoord(const ALEScreen& screen, vector<Coord*>& vOut)
     // ofs_ref << "\n";
   }
 
-  pacman.takeAverage();
-  ghost_1.takeAverage();
-  ghost_2.takeAverage();
-  ghost_3.takeAverage();
-  ghost_4.takeAverage();
-  
-  // ofstream ofs_ppm;
-  // sprintf(buffer, "screen_%d.ppm", DEBUG_FILENUM);
-  // ofs_ppm.open(buffer);
-  // ofs_ppm << "P3\n160 167\n8\n";
-
-  // for (int i = SCREEN_START_HEIGHT; i < SCREEN_END_HEIGHT; i++)
-  // {
-  //   for (int j = 0; j < screen.width(); j++)
-  //   {
-  //     unsigned int pxl = 0;
-  //     if (pacman.doesCoordMatch(i, j))
-  //     {
-  //       pxl = PXL_PACMAN;
-  //     }
-  //     else if (ghost_1.doesCoordMatch(i, j))
-  //     {
-  //       pxl = PXL_GHOST_1;
-  //     }
-  //     else if (ghost_2.doesCoordMatch(i, j))
-  //     {
-  //       pxl = PXL_GHOST_2;
-  //     }
-  //     else if (ghost_3.doesCoordMatch(i, j))
-  //     {
-  //       pxl = PXL_GHOST_3;
-  //     }
-  //     else if (ghost_4.doesCoordMatch(i, j))
-  //     {
-  //       pxl = PXL_GHOST_4;
-  //     }
-
-  //     if (pxl == 0)
-  //     {
-  //       ofs_ppm << 0 << " " << 0 << " " << 0 << " ";
-  //     }
-  //     else
-  //     {
-  //       unsigned int b_3 = (pxl & 0xE0) >> 5;
-  //       unsigned int b_2 = (pxl & 0x1C) >> 2;
-  //       unsigned int b_1 = (pxl & 0x3);
-  //       ofs_ppm << b_3 << " " << b_2 << " " << b_1 << " ";
-  //     }
-  //   }
-  //   ofs_ppm << "\n";
-  // }
-
-  // ofs_ppm.close();
   // ofs_ref.close();
 
   if (vOut.size() == 0)
   {
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < NUMCOORDFEATURE; i++)
     {
       vOut.push_back( new Coord() );
     }
   }
-  vOut[0]->update(pacman);
-  vOut[1]->update(ghost_1);
-  vOut[2]->update(ghost_2);
-  vOut[3]->update(ghost_3);
-  vOut[4]->update(ghost_4);
+  // Update position
+  for (int i = 0; i < NUMOFOBJECTS; i++)
+  {
+    vOut[i]->updatePos(so[i]);
+  }
 
-  // DEBUG_FILENUM++;
+  for (int i = NUMOFOBJECTS; i < NUMCOORDFEATURE; i++)
+  {
+    vOut[i]->updateVelo(so[i - NUMOFOBJECTS + 1]);
+  }
 }
 
 void Feature::extractFeature(const ALEScreen& screen, vector<int>& vOut)

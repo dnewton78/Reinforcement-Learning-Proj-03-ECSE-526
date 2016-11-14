@@ -40,12 +40,12 @@ void getArgs(int argc, char** argv, bool& rIsTest, int& rNumOfEpisodes)
         switch(option)
         {
             case 't':
-                cout << "tst" << endl;
+                cout << "Running in test mode" << endl;
                 rIsTest = true;
                 break;
             case 'e':
-                cout << "Episode" << endl;
                 rNumOfEpisodes = atoi(optarg);
+                cout << "Numer of Episodes:" << rNumOfEpisodes << endl;
                 break;
         }
     }

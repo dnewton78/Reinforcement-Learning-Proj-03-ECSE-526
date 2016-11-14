@@ -98,6 +98,9 @@ int main(int argc, char** argv)
     //variable for new state
     vector<Coord> newState(numberOfFeatures);
     
+    //instanitate weightmanager
+    WeightManager wManager = WeightManager();
+    
     //create FA agent
     FunctionAproximation myAgent = FunctionAproximation(numberOfFeatures,alpha, rho,actionNumber);
     //set possible actions
@@ -106,11 +109,56 @@ int main(int argc, char** argv)
     myAgent.setOfActions[2] = 3;//left 3
     myAgent.setOfActions[3] = 2;//right 4
     myAgent.setOfActions[4] = 0;//no action
-    myAgent.printContents();
     
-    //play several games and learn
-    for (int i = 0; i<numOfEpisodes; i++)
+    //check if in training mode or play mode
+    if(isTest)
     {
+        
+        //play several games and learn
+        for (int i = 0; i<numOfEpisodes; i++)
+        {
+            //get the game state and feature vectors
+            newFeature.extractCoord(ale.getScreen(), currentState);
+            //get action from function aproximation by passing current state
+            Action currentAction = legal_actions[2];//startout going left
+            //variable for new action
+            Action newAction;
+            // Total score for each episodes
+            float totalScore = 0;
+            float newScore = 0;
+            //run game loop
+            while (!ale.game_over()) {
+                
+                //get action based on state
+                newAction = legal_actions[myAgent.getAction(currentState)];
+                //make move & get reward ; get current score
+                //check if pacman has lost a life; if so reset reward values
+                newScore = ale.act(newAction);
+                totalScore+=newScore;//record total score for output
+                //get new state vector
+                newFeature.extractCoord(ale.getScreen(), newState);
+                //update utility function
+                myAgent.update(newState, newScore);
+                currentAction = newAction;
+                currentState = newState;
+                
+
+            }
+            cout << "||||||||||||||||Episode " << i << " ended with score: " << totalScore << endl;
+            ale.reset_game();
+            myAgent.printContents();
+        }
+        
+        //save learned function weights
+        wManager.saveWeights(myAgent.weights);
+    }
+    else
+    {
+        //save learned function weights
+        //clear weights in agent
+        myAgent.weights.clear();
+        wManager.loadWeights(myAgent.weights);
+        
         //get the game state and feature vectors
         newFeature.extractCoord(ale.getScreen(), currentState);
         //get action from function aproximation by passing current state
@@ -136,14 +184,12 @@ int main(int argc, char** argv)
             currentAction = newAction;
             currentState = newState;
             
-
+            
         }
-        cout << "||||||||||||||||Episode " << i << " ended with score: " << totalScore << endl;
+        cout << "||||||||||||||||End of Game. Final Score: " << totalScore << endl;
         ale.reset_game();
         myAgent.printContents();
     }
-    
-    //save learned function weights
     
     return 0;
 }

@@ -1,11 +1,12 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
-#include <string>
 #include <ale_interface.hpp>
 
 using namespace std;
 
+
+// Used to save weights so that we can skip learning process that adjusts the weights
 class WeightManager
 {
 public:
@@ -18,6 +19,8 @@ private:
   static const int PRECISION = 12;
 };
 
+
+// Class to represent objects that are in the screen: 1 pacman & 4 ghosts
 class ScreenObject
 {
 public:
@@ -46,6 +49,8 @@ private:
   void reset_3();
 };
 
+
+// Class to represent the coordinate system.
 class Coord
 {
 public:
@@ -58,6 +63,7 @@ public:
   int i;
   int j;
 };
+
 
 class Feature
 {
@@ -72,8 +78,8 @@ private:
   static const int SCREEN_END_HEIGHT = 170;
 
   static const int IDX_PACMAN = 0;
-  static const int NUMOFOBJECTS = 5;
-  // We only care about the velocity of the ghost because we our action determines
+  static const int NUMOFOBJECTS = 5; // 1 pacman & 4 ghosts
+  // We only care about the velocity of the ghosts because we our action determines
   // the pacman's velocity
   static const int NUMCOORDFEATURE = 9;
 

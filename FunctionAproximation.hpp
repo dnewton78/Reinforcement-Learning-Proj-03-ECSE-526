@@ -14,17 +14,19 @@
 #include <stdio.h>
 #include <iostream>
 #include <random>
-#include <ale_interface.hpp>
+#include "utilities.hpp"
 using namespace std;
 
 class FunctionAproximation
 {
 private:
-    double getPredictedUtility(vector<int>& features);
-    int getBestAction(vector<int>& features);
+    double getPredictedUtility(vector<Coord>& features);
+    int getBestAction(vector<Coord>& features);
     default_random_engine generator;
     default_random_engine generatorA;
+    
 public:
+    int setOfActions[5];
     double alpha;
     double rho;
     int featureNumber;
@@ -33,8 +35,8 @@ public:
     double observedUtility;
     double predictedUtility;
     FunctionAproximation(int featureNumber, double alpha, double rho, int numberOfActions);//initialize weights
-    int getAction(vector<int>& features);
-    void update(vector<int>& features, double reward);
+    int getAction(vector<Coord>& features);
+    void update(vector<Coord>& features, double reward);
     void printContents();
     
 };

@@ -36,23 +36,26 @@ int main(int argc, char** argv) {
         std::cerr << "Usage: " << argv[0] << " rom_file" << std::endl;
         return 1;
     }
-
+    
     //create ale interface
     ALEInterface ale;
     // Get & Set the desired settings
     ale.setInt("random_seed", 123);
     //The default is already 0.25, this is just an example
     ale.setFloat("repeat_action_probability", 0.25);
-
+    
 #ifdef __USE_SDL
     ale.setBool("display_screen", true);
     ale.setBool("sound", true);
 #endif
-
+    
     // Load the ROM file. (Also resets the system for new settings to
     // take effect.)
     ale.loadROM(argv[1]);
-
+    
+    //define variables for feature extraction
+    Feature newFeature = Feature();
+    
     // Get the vector of legal actions
     ActionVect legal_actions = ale.getMinimalActionSet();
     
@@ -62,17 +65,24 @@ int main(int argc, char** argv) {
     //initialize function aproximation agent variables
     double alpha = 0.1;
     double rho =0.3;
-    int lengthOfFeatureVector = 5;//state param number
-    int actions = legal_actions.size();
+    int numberOfFeatures = 5;//state param number
+    int actionNumber = 5;
     double reward = 0;
     
+    
     //variable for current state
-    vector<int> currentState;
+    vector<Coord> currentState(numberOfFeatures);
     //variable for new state
-    vector<int> newState;
+    vector<Coord> newState(numberOfFeatures);
     
     //create FA agent
-    FunctionAproximation myAgent = FunctionAproximation(lengthOfFeatureVector,alpha, rho,actions);
+    FunctionAproximation myAgent = FunctionAproximation(numberOfFeatures,alpha, rho,actionNumber);
+    //set possible actions
+    myAgent.setOfActions[0] = 2;//0 up 1 down 2 left 3 right 4 no action
+    myAgent.setOfActions[1] = 4;//0 up 1 down 2 left 3 right 4 no action
+    myAgent.setOfActions[2] = 3;//0 up 1 down 2 left 3 right 4 no action
+    myAgent.setOfActions[3] = 2;//0 up 1 down 2 left 3 right 4 no action
+    myAgent.setOfActions[4] = 0;//0 up 1 down 2 left 3 right 4 no action
     myAgent.printContents();
     
     //play several games and learn
@@ -80,13 +90,11 @@ int main(int argc, char** argv) {
     for (int i = 0; i<numberOfGames; i++)
     {
         //get the game state and feature vectors
-        currentState =
+        newFeature.extractCoord(ale, currentState);
         //get action from function aproximation by passing current state
-        Action currentAction = legal_actions[rand() % legal_actions.size()];//myAgent.getAction(newGame.getStateFA());
+        Action currentAction = legal_actions[myAgent.getAction(currentState)];
         //variable for new action
         Action newAction;
-        //variable for new state
-        newState;
         //set reward to 0 before each game
         reward = 0;
         
@@ -94,17 +102,17 @@ int main(int argc, char** argv) {
         while (!ale.game_over()) {
             
             //get action based on state
-            newAction = myAgent.getAction(newGame.getStateFA());
+            newAction = legal_actions[myAgent.getAction(currentState)];
             //make move & get reward
-            reward = reward + ale.act(newAction);
+            reward = ale.act(newAction)-reward;
             //get new state vector
-            newState = newGame.getStateFA();
+            newFeature.extractCoord(ale, newState);
             //update utility function
             myAgent.update(newState, reward);
             
             currentAction = newAction;
             currentState = newState;
-
+            
         }
         cout << "Episode " << i << " ended with score: " << totalReward << endl;
         myAgent.printContents();
@@ -112,6 +120,6 @@ int main(int argc, char** argv) {
     }
     
     //save learned function weights
-
+    
     return 0;
 }

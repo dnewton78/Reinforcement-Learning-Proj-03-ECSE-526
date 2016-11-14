@@ -27,9 +27,10 @@
 
 using namespace std;
 
-void getArgs(int argc, char** argv, bool& rIsTest, int& rNumOfEpisodes)
+int getArgs(int argc, char** argv, bool& rIsTest, int& rNumOfEpisodes)
 {
     int option = 0;
+    int argOffset = 1;
     while ((option = getopt(argc, argv, "te:")) != -1)
     {
         if (option == -1)
@@ -40,15 +41,18 @@ void getArgs(int argc, char** argv, bool& rIsTest, int& rNumOfEpisodes)
         switch(option)
         {
             case 't':
+                argOffset++;
                 cout << "Running in test mode" << endl;
                 rIsTest = true;
                 break;
             case 'e':
+                argOffset += 2;
                 rNumOfEpisodes = atoi(optarg);
                 cout << "Numer of Episodes:" << rNumOfEpisodes << endl;
                 break;
         }
     }
+    return argOffset;
 }
 
 int main(int argc, char** argv)
@@ -63,7 +67,7 @@ int main(int argc, char** argv)
     bool isTest = false;
     int numOfEpisodes = 10;
 
-    getArgs(argc, argv, isTest, numOfEpisodes);
+    int romArgPos = getArgs(argc, argv, isTest, numOfEpisodes);
 
     //create ale interface & set settings
     ALEInterface ale;
@@ -78,7 +82,7 @@ int main(int argc, char** argv)
     
     // Load the ROM file. (Also resets the system for new settings to
     // take effect.)
-    ale.loadROM(argv[1]);
+    ale.loadROM(argv[romArgPos]);
     
     //define variables for feature extraction
     Feature newFeature = Feature();

@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <random>
+#include <math.h>
 #include "utilities.hpp"
 using namespace std;
 
@@ -31,6 +32,9 @@ public:
     double rho;
     int featureNumber;
     int numberOfActions;
+    int numOfPredictions;
+    double sumOfPredictionDiference;
+    double errorPercentage;
     vector<double> weights;
     double observedUtility;
     double predictedUtility;
@@ -38,6 +42,8 @@ public:
     int getAction(vector<Coord>& features);
     void update(vector<Coord>& features, double reward);
     void printContents();
+    void printContentsPerMove();
+    void calcStats();
     
 };
 #endif /* FunctionAproximation_hpp */

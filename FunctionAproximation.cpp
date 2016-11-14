@@ -19,7 +19,9 @@ FunctionAproximation:: FunctionAproximation(int featureNumber, double alpha, dou
     this->observedUtility = 0;
     this->predictedUtility = 0;
     this->numberOfActions = numberOfActions;
-    
+    this->numOfPredictions = 0;
+    this->sumOfPredictionDiference = 0;
+    this->errorPercentage = 0;
     uniform_real_distribution<double> distribution(0,1);
 
     //initialize weights randomly
@@ -54,6 +56,8 @@ void FunctionAproximation:: update(vector<Coord>& features, double observedUtili
             weights[i] = weights[i]+alpha*(observedUtility-predictedUtility)*coordinateArray[i-1];
         }
     }
+    //calculate stats
+    this->calcStats();
 }
 
 double FunctionAproximation::getPredictedUtility(vector<Coord>& features)
@@ -164,8 +168,10 @@ int FunctionAproximation::getBestAction(vector<Coord>& features)
 
 void FunctionAproximation::printContents()
 {
-    cout<<"|||||||||||||Aproximated Function\n";
-    cout <<"U = ";
+    //calculate error
+    cout<<"\nERROR = "<<errorPercentage<<" ALPHA = "<<alpha<<" EXPLORATION RATE = "<<rho<<"\n\n";
+    cout<<"Approximated Utility Function:\n";
+    cout <<"U(s) = ";
     //use update equations to update each weight
     for (int i =0; i<featureNumber+1; i++)
     {
@@ -182,7 +188,48 @@ void FunctionAproximation::printContents()
             cout <<" + ";
     }
     
-    cout <<"\n";
-    cout<<"Observed Utility = "<<this->observedUtility<<" Predicted Utility = "<<this->predictedUtility<<"\n";
+cout <<"\n"<<"\n";
     
+    //reset state variables for error
+    numOfPredictions = 0;
+    sumOfPredictionDiference = 0;
+    errorPercentage  = 0;
+}
+
+void FunctionAproximation::printContentsPerMove()
+{
+    //calculate error
+    cout<<"\nObserved Utility = "<<this->observedUtility<<" Predicted Utility = "<<this->predictedUtility<<" Error = "<<errorPercentage<<" alpha = "<<alpha<<" exploration rate = "<<rho<<"\n\n";
+    cout<<"Approximated Utility Function:\n";
+    cout <<"U(s) = ";
+    //use update equations to update each weight
+    for (int i =0; i<featureNumber+1; i++)
+    {
+        //for the first weight we will calculate using a slightly different function because it has no feature multiplied by it: U(s) = Theta1+Theta2*feat1+theta2*feat2...etc....
+        if(i==0)
+        {
+            cout <<weights[i]<<" + ";
+        }else
+        {
+            cout <<weights[i]<<"*"<<"f"<<i-1;
+        }
+        
+        if(i!=featureNumber)
+            cout <<" + ";
+    }
+    
+    cout <<"\n"<<"\n";
+    
+    //reset state variables for error
+    numOfPredictions = 0;
+    sumOfPredictionDiference = 0;
+    errorPercentage  = 0;
+}
+
+void FunctionAproximation::calcStats()
+{
+    //increment number of predictions each time
+    numOfPredictions++;
+    sumOfPredictionDiference = sumOfPredictionDiference+fabs(observedUtility-predictedUtility);
+    errorPercentage =sumOfPredictionDiference/numOfPredictions;
 }

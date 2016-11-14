@@ -87,9 +87,9 @@ int main(int argc, char** argv)
     ActionVect legal_actions = ale.getMinimalActionSet();
     
     //initialize function aproximation agent variables
-    double alpha = 0.01;
+    double alpha = 0.000001;
     double rho =0.3;
-    int numberOfFeatures = 5;//state param number
+    int numberOfFeatures = 9;//state param number
     int actionNumber = 5;
     
     
@@ -119,25 +119,28 @@ int main(int argc, char** argv)
         Action newAction;
         // Total score for each episodes
         float totalScore = 0;
-        
+        float newScore = 0;
         //run game loop
         while (!ale.game_over()) {
             
             //get action based on state
             newAction = legal_actions[myAgent.getAction(currentState)];
-            //make move & get reward
-            float reward = ale.act(newAction);
-            totalScore += reward;
+            //make move & get reward ; get current score
+            //check if pacman has lost a life; if so reset reward values
+            newScore = ale.act(newAction);
+            totalScore+=newScore;//record total score for output
             //get new state vector
             newFeature.extractCoord(ale.getScreen(), newState);
             //update utility function
-            myAgent.update(newState, reward);
+            myAgent.update(newState, newScore);
             currentAction = newAction;
             currentState = newState;
+            
+
         }
-        cout << "Episode " << i << " ended with score: " << totalScore << endl;
-        myAgent.printContents();
+        cout << "||||||||||||||||Episode " << i << " ended with score: " << totalScore << endl;
         ale.reset_game();
+        myAgent.printContents();
     }
     
     //save learned function weights
